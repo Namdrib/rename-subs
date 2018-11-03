@@ -66,6 +66,8 @@ def rename_subs(directory='.', test=False, verbose=False):
         identifier = get_filename_identifier(no_extension)
 
         do_rename = False
+        reason = '' # reason for not renaming
+
         # Find the corresponding subtitle file
         for sub_name in get_files_with_extension(directory, sub_file_extensions()):
             # if identifier.group().lower() in sub_name.lower():
@@ -73,17 +75,22 @@ def rename_subs(directory='.', test=False, verbose=False):
             # string.replace(sub_name.lower(), " ", "."):
             if identifier.group().lower().translate(str.maketrans(' ', '.')) in sub_name.lower().translate(str.maketrans(' ', '.')):
                 new_sub_name = no_extension + get_extension(sub_name)
+                if sub_name == new_sub_name:
+                    reason = 'sub already correctly named'
+                    break
                 if verbose:
                     print("Match for {}".format(video_name))
                     print("{} -> {}".format(sub_name, new_sub_name))
-                if not test:
+                if test:
+                    reason = 'test run'
+                else:
                     subprocess.run(["mv", sub_name, new_sub_name])
                     do_rename = True
                     break
 
         if verbose:
             if not do_rename:
-                print("skipping {}".format(video_name))
+                print("skipping {}, reason: {}".format(video_name, reason))
             print()
 
 
